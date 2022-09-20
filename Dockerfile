@@ -22,3 +22,8 @@ RUN rm -r /usr/share/fonts/truetype \
 COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
+
+# install gcloud CLI
+RUN curl https://sdk.cloud.google.com | bash
+ENV PATH $PATH:/root/google-cloud-sdk/bin
+# RUN gcloud config set project $PROJECT_ID

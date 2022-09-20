@@ -3,3 +3,5 @@ python-dotenv
 flake8
 black
 mypy
+kfp
+google_cloud
