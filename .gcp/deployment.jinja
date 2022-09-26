@@ -1,0 +1,86 @@
+resources:
+
+# Enable Service APIs
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-compute-api
+  properties:
+    consumerId: "project: {{ env['project'] }}"
+    serviceName: "compute.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-storage-api
+  properties:
+    consumerId: "project: {{ env['project'] }}"
+    serviceName: "storage.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-bigquery-api
+  properties:
+    consumerId: "project: {{ env['project'] }}"
+    serviceName: "bigquery.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-aiplatform-api
+  properties:
+    consumerId: "project: {{ env['project'] }}"
+    serviceName: "aiplatform.googleapis.com"
+
+# サービスアカウントを作成するときは、たぶんこのAPIもオンにする必要がある。
+# - type: deploymentmanager.v2.virtual.enableService
+#   name: enable-iam-api
+#   properties:
+#     consumerId: "project: {{ env['project']}}"
+#     serviceName: "iam.googleapis.com"
+
+# Service Account
+- type: gcp-types/iam-v1:projects.serviceAccounts
+  name: test-account
+  properties:
+    accountId: {{ properties['serviceAccountId'] }}
+    displayName: {{ properties['serviceAccountDisplayName'] }}
+  accessControl:
+    gcpIamPolicy:
+      bindings:
+      - role: roles/editor
+        members:
+        - "serviceAccount:{{ properties['serviceAccountId']}}@{{ env['project']}}.iam.gserviceaccount.com"
+
+# Cloud Storage Bucket
+# NOTE: nameの文字列の値によって以下のエラーとなる。短い文字列+数字3文字でないとエラー(?)。仕様を要確認。
+# ~@cloudservices.gserviceaccount.com does not have storage.buckets.get access to the Google Cloud Storage bucket.","reason":"forbidden"
+- type: storage.v1.bucket
+  name: bk111      # Deployment name and actual bucket name
+  properties:
+    project: {{ env['project'] }}
+    location: {{ properties['zone'] }}
+    predefinedAcl: projectPrivate
+    projection: full
+    storageClass: STANDARD
+
+# BigQuery
+- type: bigquery.v2.dataset
+  name: demo_dataset  # Deployment name 
+  properties:
+    datasetReference:
+      datasetId: demo_dataset  # Actual dataset name
+    location: {{ properties['zone'] }}
+    description: dataset for kubeflow demo
+
+- type: bigquery.v2.table
+  name: demo_table   # Deployment name
+  properties:
+    datasetId: demo_dataset   # Actual dataset name
+    tableReference:
+      tableId: demo_table
+  #   TODO: データを見てから追記する
+  #   schema:
+  #     fields:
+  #       - name: id
+  #         type: INTEGER
+  #         mode: REQUIRED
+  #       - name: value
+  #         type: STRING
+  #         mode: NULLABLE
+  metadata:
+    dependsOn:
+      - demo_dataset    # Dependent dataset deployment name
