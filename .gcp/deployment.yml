@@ -1,0 +1,86 @@
+resources:
+
+# Enable Service APIs
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-iam-api
+  properties:
+    consumerId: "project: kubeflow-demo-362506"
+    serviceName: "iam.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-compute-api
+  properties:
+    consumerId: "project: kubeflow-demo-362506"
+    serviceName: "compute.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-storage-api
+  properties:
+    consumerId: "project: kubeflow-demo-362506"
+    serviceName: "storage.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-bigquery-api
+  properties:
+    consumerId: "project: kubeflow-demo-362506"
+    serviceName: "bigquery.googleapis.com"
+
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-aiplatform-api
+  properties:
+    consumerId: "project: kubeflow-demo-362506"
+    serviceName: "aiplatform.googleapis.com"
+
+# NOTE: service account の作成を試みたが、一旦諦めた。
+# Service Account
+# - type: gcp-types/iam-v1:projects.serviceAccounts
+#   name: test-account
+#   properties:
+#     accountId: test-account-id
+#     displayName: test-account-name
+#   accessControl:
+#     gcpIamPolicy:
+#       bindings:
+#       - role: roles/editor
+#         members:
+#         - "serviceAccount:test-account-id@kubeflow-demo-362506.iam.gserviceaccount.com"
+
+# Cloud Storage Bucket
+# NOTE: nameの文字列の値によって以下のエラーとなる。短い文字列+数字3文字でないとエラー(?)。仕様を要確認。
+# ~@cloudservices.gserviceaccount.com does not have storage.buckets.get access to the Google Cloud Storage bucket.","reason":"forbidden"
+- type: storage.v1.bucket
+  name: bk111      # Deployment name and actual bucket name
+  properties:
+    project: kubeflow-demo-362506
+    # name: demo_bucket
+    location: asia-northeast1
+    predefinedAcl: projectPrivate
+    projection: full
+    storageClass: STANDARD
+
+# BigQuery
+- type: bigquery.v2.dataset
+  name: demo_dataset  # Deployment name 
+  properties:
+    datasetReference:
+      datasetId: demo_dataset  # Actual dataset name
+    location: asia-northeast1
+    description: dataset for kubeflow demo
+- type: bigquery.v2.table
+  name: demo_table_   # Deployment name
+  properties:
+    datasetId: demo_dataset   # Actual dataset name
+    tableReference:
+      tableId: demo_table
+  #   TODO: データを見てから追記する
+  #   schema:
+  #     fields:
+  #       - name: id
+  #         type: INTEGER
+  #         mode: REQUIRED
+  #       - name: value
+  #         type: STRING
+  #         mode: NULLABLE
+  metadata:
+    dependsOn:
+      - demo_dataset    # Dependent dataset deployment name
