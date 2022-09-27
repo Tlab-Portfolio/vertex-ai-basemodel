@@ -16,30 +16,56 @@ resources:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "compute.googleapis.com"
 
+# Enable Cloud Storage API
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-storage-api
   properties:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "storage.googleapis.com"
 
+# Enable BigQuery Storage API
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-bigquery-api
   properties:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "bigquery.googleapis.com"
 
+# Enable Vertex AI API
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-aiplatform-api
   properties:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "aiplatform.googleapis.com"
 
+# Enable Identity and Access Management (IAM) API
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-iam-api
   properties:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "iam.googleapis.com"
 
+# Enable Cloud Resource Manager API
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-cloud-resource-manager-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "cloudresourcemanager.googleapis.com"
+
+# Enable Artifact Registry API
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-artifact-registry-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "artifactregistry.googleapis.com"
+
+# Enable Cloud Build API
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-cloud-build-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "cloudbuild.googleapis.com"
+
+# Enable Creat a serivece account
 - type: iam.v1.serviceAccount
   name: test-account
   properties:
@@ -49,7 +75,9 @@ resources:
   metadata:
     dependsOn:
       - enable-iam-api
+      - enable-cloud-resource-manager-api
 
+# Add a role to the serivece account
 - type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
   name: bind-iam-policy
   properties:
@@ -61,7 +89,7 @@ resources:
     dependsOn:
       - test-account
 
-# Cloud Storage Bucket
+# Create a storage bucket
 - type: storage.v1.bucket
   name: {{ BUCKET_NAME }}      # Deployment name and actual bucket name
   properties:
@@ -71,7 +99,7 @@ resources:
     projection: full
     storageClass: STANDARD
 
-# BigQuery
+# Create a dataset on BigQuery
 - type: bigquery.v2.dataset
   name: demo_dataset  # Deployment name 
   properties:
@@ -80,6 +108,7 @@ resources:
     location: {{ ZONE }}
     description: dataset for kubeflow demo
 
+# Create a table on BigQuery
 - type: bigquery.v2.table
   name: demo_table   # Deployment name
   properties:
