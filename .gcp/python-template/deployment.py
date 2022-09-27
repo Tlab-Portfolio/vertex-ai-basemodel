@@ -82,6 +82,16 @@ def GenerateConfig(context):
             },
         }
     )
+    resources.append(
+        {
+            "type": "deploymentmanager.v2.virtual.enableService",
+            "name": "enable-iam-api",
+            "properties": {
+                "consumerId": f"project: {PROJECT_ID}",
+                "serviceName": "iam.googleapis.com",
+            },
+        }
+    )
 
     # Creat a serivece account
     resources.append(
@@ -93,6 +103,7 @@ def GenerateConfig(context):
                 "displayName": SERVICE_ACCOUNT_DISPLAYNAME,
                 "projectId": PROJECT_ID,
             },
+            "metadata": {"dependsOn": ["enable-iam-api"]},
         }
     )
     resources.append(
@@ -148,7 +159,7 @@ def GenerateConfig(context):
                     "tableId": TABLE_NAME,  # Actual dataset name
                 },
             },
-            "metadata": {"dependsOn": ["demo_dataset"]},
+            "metadata": {"dependsOn": ["enable-bigquery-api", "demo_dataset"]},
         }
     )
 

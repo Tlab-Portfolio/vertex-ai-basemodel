@@ -3,7 +3,9 @@
 {% set SERVICE_ACCOUNT_ID = properties['serviceAccountId']  %}
 {% set SERVICE_ACCOUNT_DISPLAYNAME = properties['serviceAccountDisplayName']  %}
 {% set SERVICE_ACCOUNT = SERVICE_ACCOUNT_ID + '@' + PROJECT_ID + '.iam.gserviceaccount.com' %}
-
+{% set BUCKET_NAME = "bucket_" + env['project'] %}
+{% set DATASET_NAME = properties['datasetName'] %}
+{% set TABLE_NAME = properties['tableName'] %}
 
 resources:
 
@@ -38,26 +40,30 @@ resources:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "iam.googleapis.com"
 
-# Service Account
-- type: gcp-types/iam-v1:projects.serviceAccounts
+- type: iam.v1.serviceAccount
   name: test-account
   properties:
     accountId: {{ SERVICE_ACCOUNT_ID }}
     displayName: {{ SERVICE_ACCOUNT_DISPLAYNAME }}
-  accessControl:
-    gcpIamPolicy:
-      bindings:
-      - role: roles/editor
-        members:
-        {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
-        - "serviceAccount:{{ SERVICE_ACCOUNT }}" 
+    projectId: {{ PROJECT_ID }}
   metadata:
     dependsOn:
       - enable-iam-api
 
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/editor
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - test-account
+
 # Cloud Storage Bucket
 - type: storage.v1.bucket
-  name: bk111      # Deployment name and actual bucket name
+  name: {{ BUCKET_NAME }}      # Deployment name and actual bucket name
   properties:
     project: {{ PROJECT_ID }}
     location: {{ ZONE }}
@@ -70,16 +76,16 @@ resources:
   name: demo_dataset  # Deployment name 
   properties:
     datasetReference:
-      datasetId: demo_dataset  # Actual dataset name
+      datasetId: {{ DATASET_NAME }}  # Actual dataset name
     location: {{ ZONE }}
     description: dataset for kubeflow demo
 
 - type: bigquery.v2.table
   name: demo_table   # Deployment name
   properties:
-    datasetId: demo_dataset   # Actual dataset name
+    datasetId: {{ DATASET_NAME }}   # Actual dataset name
     tableReference:
-      tableId: demo_table
+      tableId: {{ TABLE_NAME }}
   #   TODO: ここで列のスキーマを定義することも可能。
   #   schema:
   #     fields:
