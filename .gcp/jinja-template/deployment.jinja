@@ -1,58 +1,64 @@
+{% set PROJECT_ID = env['project']  %}
+{% set ZONE = properties['zone']  %}
+{% set SERVICE_ACCOUNT_ID = properties['serviceAccountId']  %}
+{% set SERVICE_ACCOUNT_DISPLAYNAME = properties['serviceAccountDisplayName']  %}
+{% set SERVICE_ACCOUNT = SERVICE_ACCOUNT_ID + '@' + PROJECT_ID + '.iam.gserviceaccount.com' %}
+
+
 resources:
 
 # Enable Service APIs
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-compute-api
   properties:
-    consumerId: "project: {{ env['project'] }}"
+    consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "compute.googleapis.com"
 
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-storage-api
   properties:
-    consumerId: "project: {{ env['project'] }}"
+    consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "storage.googleapis.com"
 
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-bigquery-api
   properties:
-    consumerId: "project: {{ env['project'] }}"
+    consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "bigquery.googleapis.com"
 
 - type: deploymentmanager.v2.virtual.enableService
   name: enable-aiplatform-api
   properties:
-    consumerId: "project: {{ env['project'] }}"
+    consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "aiplatform.googleapis.com"
 
 # サービスアカウントを作成するときは、たぶんこのAPIもオンにする必要がある。
 # - type: deploymentmanager.v2.virtual.enableService
 #   name: enable-iam-api
 #   properties:
-#     consumerId: "project: {{ env['project']}}"
+#     consumerId: "project: {{ PROJECT_ID }}"
 #     serviceName: "iam.googleapis.com"
 
 # Service Account
 - type: gcp-types/iam-v1:projects.serviceAccounts
   name: test-account
   properties:
-    accountId: {{ properties['serviceAccountId'] }}
-    displayName: {{ properties['serviceAccountDisplayName'] }}
+    accountId: {{ SERVICE_ACCOUNT_ID }}
+    displayName: {{ SERVICE_ACCOUNT_DISPLAYNAME }}
   accessControl:
     gcpIamPolicy:
       bindings:
       - role: roles/editor
         members:
-        - "serviceAccount:{{ properties['serviceAccountId']}}@{{ env['project']}}.iam.gserviceaccount.com"
+        {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+        - "serviceAccount:{{ SERVICE_ACCOUNT }}" 
 
 # Cloud Storage Bucket
-# NOTE: nameの文字列の値によって以下のエラーとなる。短い文字列+数字3文字でないとエラー(?)。仕様を要確認。
-# ~@cloudservices.gserviceaccount.com does not have storage.buckets.get access to the Google Cloud Storage bucket.","reason":"forbidden"
 - type: storage.v1.bucket
   name: bk111      # Deployment name and actual bucket name
   properties:
-    project: {{ env['project'] }}
-    location: {{ properties['zone'] }}
+    project: {{ PROJECT_ID }}
+    location: {{ ZONE }}
     predefinedAcl: projectPrivate
     projection: full
     storageClass: STANDARD
@@ -63,7 +69,7 @@ resources:
   properties:
     datasetReference:
       datasetId: demo_dataset  # Actual dataset name
-    location: {{ properties['zone'] }}
+    location: {{ ZONE }}
     description: dataset for kubeflow demo
 
 - type: bigquery.v2.table
@@ -72,7 +78,7 @@ resources:
     datasetId: demo_dataset   # Actual dataset name
     tableReference:
       tableId: demo_table
-  #   TODO: データを見てから追記する
+  #   TODO: ここで列のスキーマを定義することも可能。
   #   schema:
   #     fields:
   #       - name: id
