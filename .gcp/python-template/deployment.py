@@ -41,7 +41,7 @@ def GenerateConfig(context):
 
     resources = []
 
-    # Enable Service APIs
+    # Enable Compute Engine API
     resources.append(
         {
             "type": "deploymentmanager.v2.virtual.enableService",
@@ -52,6 +52,7 @@ def GenerateConfig(context):
             },
         }
     )
+    # Enable Cloud Storage API
     resources.append(
         {
             "type": "deploymentmanager.v2.virtual.enableService",
@@ -62,6 +63,7 @@ def GenerateConfig(context):
             },
         }
     )
+    # Enable BigQuery Storage API
     resources.append(
         {
             "type": "deploymentmanager.v2.virtual.enableService",
@@ -72,6 +74,7 @@ def GenerateConfig(context):
             },
         }
     )
+    # Enable Vertex AI API
     resources.append(
         {
             "type": "deploymentmanager.v2.virtual.enableService",
@@ -82,6 +85,7 @@ def GenerateConfig(context):
             },
         }
     )
+    # Enable Identity and Access Management (IAM) API
     resources.append(
         {
             "type": "deploymentmanager.v2.virtual.enableService",
@@ -92,8 +96,41 @@ def GenerateConfig(context):
             },
         }
     )
+    # Enable Cloud Resource Manager API
+    resources.append(
+        {
+            "type": "deploymentmanager.v2.virtual.enableService",
+            "name": "enable-cloud-resource-manager-api",
+            "properties": {
+                "consumerId": f"project: {PROJECT_ID}",
+                "serviceName": "cloudresourcemanager.googleapis.com",
+            },
+        }
+    )
+    # Enable Artifact Registry API
+    resources.append(
+        {
+            "type": "deploymentmanager.v2.virtual.enableService",
+            "name": "enable-artifact-registry-api",
+            "properties": {
+                "consumerId": f"project: {PROJECT_ID}",
+                "serviceName": "artifactregistry.googleapis.com",
+            },
+        }
+    )
+    # Enable Cloud Build API
+    resources.append(
+        {
+            "type": "deploymentmanager.v2.virtual.enableService",
+            "name": "enable-cloud-build-api",
+            "properties": {
+                "consumerId": f"project: {PROJECT_ID}",
+                "serviceName": "cloudbuild.googleapis.com",
+            },
+        }
+    )
 
-    # Creat a serivece account
+    # Enable Creat a serivece account
     resources.append(
         {
             "type": "iam.v1.serviceAccount",
@@ -103,9 +140,13 @@ def GenerateConfig(context):
                 "displayName": SERVICE_ACCOUNT_DISPLAYNAME,
                 "projectId": PROJECT_ID,
             },
-            "metadata": {"dependsOn": ["enable-iam-api"]},
+            "metadata": {
+                "dependsOn": ["enable-iam-api", "enable-cloud-resource-manager-api"]
+            },
         }
     )
+
+    # Add a role to the serivece account
     resources.append(
         {
             "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
@@ -149,6 +190,7 @@ def GenerateConfig(context):
             },
         }
     )
+    # Create a table on BigQuery
     resources.append(
         {
             "type": "bigquery.v2.table",
