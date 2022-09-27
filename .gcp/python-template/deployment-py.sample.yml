@@ -1,0 +1,14 @@
+# NOTE: 機密情報を含むので、テンプレートだけgit管理する
+
+imports:
+  - path: deployment.py
+
+resources:
+  - name: kubeflow-demo
+    type: deployment.jinja
+    properties:
+      zone: <your-zone>   # ex.) us-central1
+      serviceAccountId: <your-service-account-id> # ex.) app-service-account
+      serviceAccountDisplayName: <your-service-account-display-name> # ex.) app-service-account
+      datasetName: <your-bigquery-dataset-name> # ex.) my-dataset
+      tableName: <your-bigquery-table-name> # ex.) my-table
