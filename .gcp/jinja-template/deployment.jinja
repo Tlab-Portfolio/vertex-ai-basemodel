@@ -32,12 +32,11 @@ resources:
     consumerId: "project: {{ PROJECT_ID }}"
     serviceName: "aiplatform.googleapis.com"
 
-# サービスアカウントを作成するときは、たぶんこのAPIもオンにする必要がある。
-# - type: deploymentmanager.v2.virtual.enableService
-#   name: enable-iam-api
-#   properties:
-#     consumerId: "project: {{ PROJECT_ID }}"
-#     serviceName: "iam.googleapis.com"
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-iam-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "iam.googleapis.com"
 
 # Service Account
 - type: gcp-types/iam-v1:projects.serviceAccounts
@@ -52,6 +51,9 @@ resources:
         members:
         {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
         - "serviceAccount:{{ SERVICE_ACCOUNT }}" 
+  metadata:
+    dependsOn:
+      - enable-iam-api
 
 # Cloud Storage Bucket
 - type: storage.v1.bucket
