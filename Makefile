@@ -23,15 +23,20 @@ delete-resources-python:
 	gcloud deployment-manager deployments \
 		delete kubeflow-demo-deployment --delete-policy=DELETE
 
+# プロジェクト作成時から存在するAPI 及び Compute Engine APIは除いている 
 enable-services:
 	gcloud services enable \
 		iam.googleapis.com \
 		cloudresourcemanager.googleapis.com \
-		aiplatform.googleapis.com
+		aiplatform.googleapis.com \
+		artifactregistry.googleapis.com \
+		cloudbuild.googleapis.com
 
-# computeやstorageは停止しないでおく。
+# プロジェクト作成時から存在するAPI 及び Compute Engine APIは除いている 
 disable-services:
 	gcloud services disable \
 		iam.googleapis.com \
 		cloudresourcemanager.googleapis.com \
-		aiplatform.googleapis.com
+		aiplatform.googleapis.com \
+		artifactregistry.googleapis.com \
+		cloudbuild.googleapis.com
