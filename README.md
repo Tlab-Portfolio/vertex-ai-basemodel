@@ -4,7 +4,13 @@
 1. Login to the Google Cloud console
 2. Create a new project
 3. Copy the project ID and paste it on `.env` file
-4. Run the folllowing command on a local bash
+4. Check values on configuration files 
+    - `.env`
+    - If use python template for Deployment Manager
+        - `.gcp/python-template/deployment-py.yml`
+    - If use jinja template for Deployment Manager
+        - `.gcp/jinja-template/deployment-jinja.yml`
+5. Run the folllowing command on a local bash
 ```
 # Prepare to run deployment manger
 make setup-gcloud-cli
