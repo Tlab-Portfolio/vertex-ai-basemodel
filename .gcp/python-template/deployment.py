@@ -150,10 +150,23 @@ def GenerateConfig(context):
     resources.append(
         {
             "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
-            "name": "bind-iam-policy",
+            "name": "bind-iam-policy-objectCreater",
             "properties": {
                 "resource": PROJECT_ID,
-                "role": "roles/editor",
+                "role": "roles/storage.objectCreator",
+                # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
+                "member": f"serviceAccount:{SERVICE_ACCOUNT}",
+            },
+            "metadata": {"dependsOn": ["app-service-account"]},
+        }
+    )
+    resources.append(
+        {
+            "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
+            "name": "bind-iam-policy-objectViewer",
+            "properties": {
+                "resource": PROJECT_ID,
+                "role": "roles/storage.objectViewer",
                 # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
                 "member": f"serviceAccount:{SERVICE_ACCOUNT}",
             },
