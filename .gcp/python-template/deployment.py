@@ -35,7 +35,7 @@ def GenerateConfig(context):
 
     # Storage
     # BUCKET_NAME = os.environ.get("BUCKET_NAME")
-    BUCKET_NAME = "bucket_" + context.env["project"]
+    BUCKET_NAME = "bucket-" + context.env["project"]
     DATASET_NAME = context.properties["datasetName"]
     TABLE_NAME = context.properties["tableName"]
 

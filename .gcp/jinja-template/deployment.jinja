@@ -3,7 +3,7 @@
 {% set SERVICE_ACCOUNT_ID = properties['serviceAccountId']  %}
 {% set SERVICE_ACCOUNT_DISPLAYNAME = properties['serviceAccountDisplayName']  %}
 {% set SERVICE_ACCOUNT = SERVICE_ACCOUNT_ID + '@' + PROJECT_ID + '.iam.gserviceaccount.com' %}
-{% set BUCKET_NAME = "bucket_" + env['project'] %}
+{% set BUCKET_NAME = "bucket-" + env['project'] %}
 {% set DATASET_NAME = properties['datasetName'] %}
 {% set TABLE_NAME = properties['tableName'] %}
 
