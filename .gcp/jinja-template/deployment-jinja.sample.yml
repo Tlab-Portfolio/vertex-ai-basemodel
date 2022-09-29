@@ -1,4 +1,5 @@
 # NOTE: 機密情報を含むので、テンプレートだけgit管理する
+# NOTE: serviceAccountIdは.envのAPP_SERVICE_ACCOUNTに設定した値の@より前と一致しなければいけない。
 
 imports:
   - path: deployment.jinja
