@@ -134,7 +134,7 @@ def GenerateConfig(context):
     resources.append(
         {
             "type": "iam.v1.serviceAccount",
-            "name": "test-account",
+            "name": "app-service-account",
             "properties": {
                 "accountId": SERVICE_ACCOUNT_ID,
                 "displayName": SERVICE_ACCOUNT_DISPLAYNAME,
@@ -157,7 +157,7 @@ def GenerateConfig(context):
                 # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
                 "member": f"serviceAccount:{SERVICE_ACCOUNT}",
             },
-            "metadata": {"dependsOn": ["test-account"]},
+            "metadata": {"dependsOn": ["app-service-account"]},
         }
     )
 

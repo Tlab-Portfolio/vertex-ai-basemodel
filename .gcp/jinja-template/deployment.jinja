@@ -67,7 +67,7 @@ resources:
 
 # Enable Creat a serivece account
 - type: iam.v1.serviceAccount
-  name: test-account
+  name: app-service-account
   properties:
     accountId: {{ SERVICE_ACCOUNT_ID }}
     displayName: {{ SERVICE_ACCOUNT_DISPLAYNAME }}
@@ -87,7 +87,7 @@ resources:
     member: "serviceAccount:{{SERVICE_ACCOUNT}}"
   metadata: 
     dependsOn:
-      - test-account
+      - app-service-account
 
 # Create a storage bucket
 - type: storage.v1.bucket
