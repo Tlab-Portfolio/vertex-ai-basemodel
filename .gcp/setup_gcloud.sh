@@ -19,10 +19,10 @@ PROJECT_NUMBER=$(gcloud projects list \
                 --filter="$(gcloud config get-value project)" \
                 --format="value(PROJECT_NUMBER)")
 
-SERVICE_ACCOUNT="${PROJECT_NUMBER}@cloudservices.gserviceaccount.com"
+DEFAULT_SERVICE_ACCOUNT="${PROJECT_NUMBER}@cloudservices.gserviceaccount.com"
 
 gcloud projects add-iam-policy-binding $PROJECT_ID \
-    --member="serviceAccount:${SERVICE_ACCOUNT}" \
+    --member="serviceAccount:${DEFAULT_SERVICE_ACCOUNT}" \
     --role="roles/resourcemanager.projectIamAdmin"
 
 # 機密情報を使ったサービスアカウントの有効化
