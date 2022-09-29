@@ -1,5 +1,6 @@
 .env
 .pytest_cache/
+__pycache__
 .gcp/python-template/deployment-py.yml
 .gcp/jinja-template/deployment-jinja.yml
 GCP_credential.json
