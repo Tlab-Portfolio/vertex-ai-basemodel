@@ -1,9 +1,9 @@
 name: ML Pipeline Continuous Integration
 on:
-	push:
-		branches: [ develop ]
-	pull_request:
-		branches: [ main ]
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -11,16 +11,16 @@ jobs:
 
     steps:
       - name: Checkout the code repository
-				uses: actions/checkout@v3
+        uses: actions/checkout@v3
       - name: Set up Python 
         uses: actions/setup-python@v4
         with:
-          python-version: 3.10
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install flake8 pytest
-					pip install -r requirements.txt
+          pip install -r requirements.txt
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
