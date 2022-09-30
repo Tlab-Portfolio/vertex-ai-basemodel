@@ -17,8 +17,15 @@ make setup-gcloud-cli
 
 # Run deployment manager
 make deploy-resources-python
+
 ```
+6. Create a service account key json file on GCP Console and store it to the following path
+`.gcp/gcp_serice_account_key.json`
 
+7. Run python scripts
+```
+make compile-and-run
 
+```
 ### Vertex AI Pipeline code comes from this Notebook
 https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/pipelines/google_cloud_pipeline_components_automl_tabular.ipynb

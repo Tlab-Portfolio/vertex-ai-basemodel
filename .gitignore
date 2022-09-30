@@ -3,4 +3,5 @@
 __pycache__
 .gcp/python-template/deployment-py.yml
 .gcp/jinja-template/deployment-jinja.yml
-GCP_credential.json
+.gcp/gcp_service_account_key.json
+*.egg-info

@@ -1,4 +1,7 @@
-# 環境変数を読み込む
+# Make上で環境変数を読み込む
+include .env
+
+# Bashに環境変数を読み込む
 load-env:
 	. ./.env
 
@@ -48,3 +51,12 @@ disable-services:
 		aiplatform.googleapis.com \
 		artifactregistry.googleapis.com \
 		cloudbuild.googleapis.com
+
+# 外部データをGCSにコピーする
+load-data-on-gcs:
+	gsutil cp ${CSV_DATA_SOURCE} ${PIPELINE_ROOT}/data/${CSV_FILENAME}
+
+# パイプラインをコンパイルしてVertex AIで実行する
+compile-and-run:
+	python src/compile.py
+	python src/run.py
