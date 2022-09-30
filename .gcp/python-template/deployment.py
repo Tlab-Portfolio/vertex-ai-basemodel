@@ -26,12 +26,14 @@ def GenerateConfig(context):
 
     # General setting
     PROJECT_ID = context.env["project"]
+    PROJECT_NUMBER = context.env["project_number"]
     ZONE = context.properties["zone"]
 
     # Service Account
     SERVICE_ACCOUNT_ID = context.properties["serviceAccountId"]
     SERVICE_ACCOUNT_DISPLAYNAME = context.properties["serviceAccountDisplayName"]
     SERVICE_ACCOUNT = f"{SERVICE_ACCOUNT_ID}@{PROJECT_ID}.iam.gserviceaccount.com"
+    COMPUTE_SERVICE_ACCOUNT = f"{PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 
     # Storage
     # BUCKET_NAME = os.environ.get("BUCKET_NAME")
@@ -146,7 +148,20 @@ def GenerateConfig(context):
         }
     )
 
-    # Add a role to the serivece account
+    # Add a role to the app serivece account
+    resources.append(
+        {
+            "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
+            "name": "bind-iam-policy-aiplatform.user",
+            "properties": {
+                "resource": PROJECT_ID,
+                "role": "roles/aiplatform.user",
+                # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
+                "member": f"serviceAccount:{SERVICE_ACCOUNT}",
+            },
+            "metadata": {"dependsOn": ["app-service-account"]},
+        }
+    )
     resources.append(
         {
             "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
@@ -169,6 +184,47 @@ def GenerateConfig(context):
                 "role": "roles/storage.objectViewer",
                 # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
                 "member": f"serviceAccount:{SERVICE_ACCOUNT}",
+            },
+            "metadata": {"dependsOn": ["app-service-account"]},
+        }
+    )
+    resources.append(
+        {
+            "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
+            "name": "bind-iam-policy-serviceAccountUser",
+            "properties": {
+                "resource": PROJECT_ID,
+                "role": "roles/iam.serviceAccountUser",
+                # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
+                "member": f"serviceAccount:{SERVICE_ACCOUNT}",
+            },
+            "metadata": {"dependsOn": ["app-service-account"]},
+        }
+    )
+
+    # Add roles to compute service accountis
+    resources.append(
+        {
+            "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
+            "name": "bind-iam-policy-objectCreater-compute",
+            "properties": {
+                "resource": PROJECT_ID,
+                "role": "roles/storage.objectCreator",
+                # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
+                "member": f"serviceAccount:{COMPUTE_SERVICE_ACCOUNT}",
+            },
+            "metadata": {"dependsOn": ["app-service-account"]},
+        }
+    )
+    resources.append(
+        {
+            "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
+            "name": "bind-iam-policy-objectViewer-compute",
+            "properties": {
+                "resource": PROJECT_ID,
+                "role": "roles/storage.objectViewer",
+                # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
+                "member": f"serviceAccount:{COMPUTE_SERVICE_ACCOUNT}",
             },
             "metadata": {"dependsOn": ["app-service-account"]},
         }
