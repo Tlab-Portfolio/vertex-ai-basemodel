@@ -191,6 +191,19 @@ def GenerateConfig(context):
     resources.append(
         {
             "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
+            "name": "bind-iam-policy-storage.admin",
+            "properties": {
+                "resource": PROJECT_ID,
+                "role": "roles/storage.admin",
+                # NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる
+                "member": f"serviceAccount:{SERVICE_ACCOUNT}",
+            },
+            "metadata": {"dependsOn": ["app-service-account"]},
+        }
+    )
+    resources.append(
+        {
+            "type": "gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding",
             "name": "bind-iam-policy-serviceAccountUser",
             "properties": {
                 "resource": PROJECT_ID,
