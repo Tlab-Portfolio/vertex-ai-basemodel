@@ -12,14 +12,16 @@ def pipeline(project: str = PROJECT_ID, region: str = REGION):
         ModelDeployOp,
     )
 
-    aip.init(project=PROJECT_ID, staging_bucket=BUCKET_URI)
-
     dataset_create_op = gcc_aip.TabularDatasetCreateOp(
-        project=project, display_name="housing", gcs_source=GCS_CSV_PATH
+        project=project,
+        location=region,
+        display_name="housing",
+        gcs_source=GCS_CSV_PATH,
     )
 
     training_op = gcc_aip.AutoMLTabularTrainingJobRunOp(
         project=project,
+        location=region,
         display_name="train-automl-cal_housing",
         optimization_prediction_type="regression",
         optimization_objective="minimize-rmse",
