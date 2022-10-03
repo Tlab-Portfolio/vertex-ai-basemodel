@@ -1,11 +1,24 @@
-import google.cloud.aiplatform as aip
 import kfp
 
-from config import BUCKET_URI, GCS_CSV_PATH, PROJECT_ID, REGION
+from config import (
+    DATASET_DISPLAY_NAME,
+    ENDPOINT_DISPLAY_NAME,
+    GCS_CSV_PATH,
+    MODEL_DEPLOY_MACHINE_TYPE,
+    MODEL_DEPLOY_MAX_REPLICA_COUNT,
+    MODEL_DEPLOY_MIN_REPLICA_COUNT,
+    PROJECT_ID,
+    REGION,
+    TRAINING_BUDGET_MILLI_NODE_HOURS,
+    TRAINING_DISPLAY_NAME,
+    TRAINING_OPTIMIZATION_OBJECTIVE,
+    TRAINING_PREDICTION_TYPE,
+)
 
 
 @kfp.dsl.pipeline(name="automl-tab-training-v2")
-def pipeline(project: str = PROJECT_ID, region: str = REGION):
+def pipeline():
+    """Define a ML pipeline."""
     from google_cloud_pipeline_components import aiplatform as gcc_aip
     from google_cloud_pipeline_components.v1.endpoint import (
         EndpointCreateOp,
@@ -13,18 +26,19 @@ def pipeline(project: str = PROJECT_ID, region: str = REGION):
     )
 
     dataset_create_op = gcc_aip.TabularDatasetCreateOp(
-        project=project,
-        location=region,
-        display_name="housing",
+        project=PROJECT_ID,
+        location=REGION,
+        display_name=DATASET_DISPLAY_NAME,
         gcs_source=GCS_CSV_PATH,
     )
 
     training_op = gcc_aip.AutoMLTabularTrainingJobRunOp(
-        project=project,
-        location=region,
-        display_name="train-automl-cal_housing",
-        optimization_prediction_type="regression",
-        optimization_objective="minimize-rmse",
+        project=PROJECT_ID,
+        location=REGION,
+        display_name=TRAINING_DISPLAY_NAME,
+        optimization_prediction_type=TRAINING_PREDICTION_TYPE,
+        optimization_objective=TRAINING_OPTIMIZATION_OBJECTIVE,
+        budget_milli_node_hours=TRAINING_BUDGET_MILLI_NODE_HOURS,
         column_transformations=[
             {"numeric": {"column_name": "longitude"}},
             {"numeric": {"column_name": "latitude"}},
@@ -41,15 +55,15 @@ def pipeline(project: str = PROJECT_ID, region: str = REGION):
     )
 
     endpoint_op = EndpointCreateOp(
-        project=project,
-        location=region,
-        display_name="train-automl-cal_housing_endpoint",
+        project=PROJECT_ID,
+        location=REGION,
+        display_name=ENDPOINT_DISPLAY_NAME,
     )
 
     _ = ModelDeployOp(
         model=training_op.outputs["model"],
         endpoint=endpoint_op.outputs["endpoint"],
-        dedicated_resources_machine_type="n1-standard-4",
-        dedicated_resources_min_replica_count=1,
-        dedicated_resources_max_replica_count=1,
+        dedicated_resources_machine_type=MODEL_DEPLOY_MACHINE_TYPE,
+        dedicated_resources_min_replica_count=MODEL_DEPLOY_MIN_REPLICA_COUNT,
+        dedicated_resources_max_replica_count=MODEL_DEPLOY_MAX_REPLICA_COUNT,
     )
