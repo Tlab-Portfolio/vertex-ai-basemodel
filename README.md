@@ -22,7 +22,12 @@ make deploy-resources-python
 6. Create a service account key json file on GCP Console and store it to the following path
 `.gcp/gcp_serice_account_key.json`
 
-7. Run python scripts
+7. Load data on Cloud Storage
+```
+make load-data-on-gcs
+```
+
+8. Run python scripts
 ```
 make compile-and-run
 
