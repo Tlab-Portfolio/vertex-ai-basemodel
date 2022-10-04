@@ -3,7 +3,7 @@ from typing import Dict
 
 from google.cloud import aiplatform, aiplatform_v1
 
-from config import API_ENDPOINT, PROJECT_ID, REGION, TRAINING_DISPLAY_NAME
+from src.config import API_ENDPOINT, PROJECT_ID, REGION, TRAINING_DISPLAY_NAME
 
 
 def delete_endpoint(
@@ -132,8 +132,3 @@ def undeploy_model_in_endpoint(
         endpoint=endpoint_name, deployed_model_id=deployed_model_id
     )
     client.undeploy_model(request=undeploy_request, timeout=timeout)
-
-
-# get_model_info(model_display_name=TRAINING_DISPLAY_NAME)
-# endpoint_id = "1124598085075337216"
-# undeploy_model_in_endpoint(endpoint_id)
