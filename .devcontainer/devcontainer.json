@@ -1,0 +1,37 @@
+{
+	"name": "dev",
+	"dockerFile": "../Dockerfile",
+
+	// コンテナ作成後に実行したいコマンドがあるときに使う
+	//"postCreateCommand": "./devcontainer/some.sh",
+
+	//VSCodeの拡張機能
+	"extensions": [
+		"mhutchie.git-graph",
+		"ms-python.python",
+		"VisualStudioExptTeam.vscodeintellicode",
+		"KevinRose.vsc-python-indent",
+		"ms-python.pylint",
+		"eamodio.gitlens",
+		"njpwerner.autodocstring",
+		"jgclark.vscode-todo-highlight"
+	],
+
+	// VSCodeの設定 
+	"settings": {
+		"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash"
+					}
+		},
+		"terminal.integrated.defaultProfile.linux": "bash",
+		"python.linting.flake8Enabled": true,
+		"python.formatting.provider": "black",
+		"[python]": {
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+						"source.organizeImports": true
+				 }
+			}
+		}
+}

@@ -1,0 +1,192 @@
+{% set PROJECT_ID = env['project']  %}
+{% set ZONE = properties['zone']  %}
+{% set SERVICE_ACCOUNT_ID = properties['serviceAccountId']  %}
+{% set SERVICE_ACCOUNT_DISPLAYNAME = properties['serviceAccountDisplayName']  %}
+{% set SERVICE_ACCOUNT = SERVICE_ACCOUNT_ID + '@' + PROJECT_ID + '.iam.gserviceaccount.com' %}
+{% set COMPUTE_SERVICE_ACCOUNT = env['project_number'] + '-compute@developer.gserviceaccount.com'%}
+{% set BUCKET_NAME = "bucket-" + env['project'] %}
+{% set DATASET_NAME = properties['datasetName'] %}
+{% set TABLE_NAME = properties['tableName'] %}
+
+resources:
+
+{# Enable Service APIs #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-compute-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "compute.googleapis.com"
+
+{# Enable Cloud Storage API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-storage-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "storage.googleapis.com"
+
+{# Enable BigQuery Storage API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-bigquery-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "bigquery.googleapis.com"
+
+{# Enable Vertex AI API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-aiplatform-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "aiplatform.googleapis.com"
+
+{# Enable Identity and Access Management (IAM) API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-iam-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "iam.googleapis.com"
+
+{# Enable Cloud Resource Manager API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-cloud-resource-manager-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "cloudresourcemanager.googleapis.com"
+
+{# Enable Artifact Registry API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-artifact-registry-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "artifactregistry.googleapis.com"
+
+{# Enable Cloud Build API #}
+- type: deploymentmanager.v2.virtual.enableService
+  name: enable-cloud-build-api
+  properties:
+    consumerId: "project: {{ PROJECT_ID }}"
+    serviceName: "cloudbuild.googleapis.com"
+
+{# Enable Creat a serivece account #}
+- type: iam.v1.serviceAccount
+  name: app-service-account
+  properties:
+    accountId: {{ SERVICE_ACCOUNT_ID }}
+    displayName: {{ SERVICE_ACCOUNT_DISPLAYNAME }}
+    projectId: {{ PROJECT_ID }}
+  metadata:
+    dependsOn:
+      - enable-iam-api
+      - enable-cloud-resource-manager-api
+
+{# Add a role to the app serivece account #}
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-aiplatform.user
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/aiplatform.user
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-objectCreater
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/storage.objectCreator
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-objectViewer
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/storage.objectViewer
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-storage.admin
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/storage.admin
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-serviceAccountUser
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/iam.serviceAccountUser
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+
+{# Add roles to compute service account #}
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-objectCreater-compute
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/storage.objectCreator
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{COMPUTE_SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+- type: gcp-types/cloudresourcemanager-v1:virtual.projects.iamMemberBinding
+  name: bind-iam-policy-objectViewer-compute
+  properties:
+    resource: {{ PROJECT_ID }}
+    role: roles/storage.objectViewer
+    {# NOTE: "serviceAccount:value" 全体を文字列としないとエラーとなる #}
+    member: "serviceAccount:{{COMPUTE_SERVICE_ACCOUNT}}"
+  metadata: 
+    dependsOn:
+      - app-service-account
+
+# Create a storage bucket
+- type: storage.v1.bucket
+  name: {{ BUCKET_NAME }}      # Deployment name and actual bucket name
+  properties:
+    project: {{ PROJECT_ID }}
+    location: {{ ZONE }}
+    predefinedAcl: projectPrivate
+    projection: full
+    storageClass: STANDARD
+
+# Create a dataset on BigQuery
+- type: bigquery.v2.dataset
+  name: demo_dataset  # Deployment name 
+  properties:
+    datasetReference:
+      datasetId: {{ DATASET_NAME }}  # Actual dataset name
+    location: {{ ZONE }}
+    description: dataset for kubeflow demo
+
+# Create a table on BigQuery
+- type: bigquery.v2.table
+  name: demo_table   # Deployment name
+  properties:
+    datasetId: {{ DATASET_NAME }}   # Actual dataset name
+    tableReference:
+      tableId: {{ TABLE_NAME }}
+  #   TODO: ここで列のスキーマを定義することも可能。
+  #   schema:
+  #     fields:
+  #       - name: id
+  #         type: INTEGER
+  #         mode: REQUIRED
+  #       - name: value
+  #         type: STRING
+  #         mode: NULLABLE
+  metadata:
+    dependsOn:
+      - demo_dataset    # Dependent dataset deployment name
