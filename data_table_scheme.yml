@@ -1,0 +1,9 @@
+longitude: numeric
+latitude: numeric
+housing_median_age: numeric
+total_rooms: numeric
+total_bedrooms: numeric
+population: numeric
+households: numeric
+median_income: numeric
+median_house_value: numeric
