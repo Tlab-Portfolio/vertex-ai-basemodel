@@ -10,27 +10,37 @@
         - `.gcp/python-template/deployment-py.yml`
     - If use jinja template for Deployment Manager
         - `.gcp/jinja-template/deployment-jinja.yml`
-5. Run the folllowing command on a local bash
+
+5. On gcloud, authenticate by the owner account.
+```
+gcloud auth login
+```
+
+6. Run the folllowing command on a local bash
 ```
 # Prepare to run deployment manger
 make setup-gcloud-cli
-
-# Run deployment manager
-make deploy-resources-python
+```
+- Answer "y" for the following question:  
+`API [compute.googleapis.com] not enabled on project ~`
 
 ```
-6. Create a service account key json file on GCP Console and store it to the following path
+# Run deployment manager
+make deploy-resources-python
+```
+
+7. Create a service account key json file on GCP Console and store it to the following path
 `.gcp/gcp_serice_account_key.json`
 
-7. Load data on Cloud Storage
+8. Load data on Cloud Storage
 ```
 make load-data-on-gcs
 ```
 
-8. Run python scripts
+9. Run python scripts
 ```
 make compile-and-run
-
 ```
+
 ### Vertex AI Pipeline code comes from this Notebook
 https://github.com/GoogleCloudPlatform/vertex-ai-samples/blob/main/notebooks/official/pipelines/google_cloud_pipeline_components_automl_tabular.ipynb
