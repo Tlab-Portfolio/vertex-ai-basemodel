@@ -5,3 +5,4 @@ black
 mypy
 kfp
 google_cloud
+google-cloud-pipeline-components
